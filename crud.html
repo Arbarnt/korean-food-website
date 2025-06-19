@@ -1,0 +1,368 @@
+<head>
+	<link href='https://fonts.googleapis.com/css?family=Open+Sans:400,300,600' rel='stylesheet' type='text/css'>
+</head>
+
+<div  id='editControls'>
+</div>
+<div class='container'>
+	<div class='row'>
+		<div class='newRecipe'>
+			
+		</div>
+		<ul id='recipeView' class='nav nav-pills'>
+				<li id='bigView' role='presentation' class='active'>
+					<a class='glyphicon glyphicon-th-list'></a>
+				</li>
+				<li id='smallView' role='presentation'>
+					<a class='glyphicon glyphicon-align-justify'></a>
+				</li>
+			</ul>
+		<div  id='controls'>
+		</div>
+		<div id='recContainer' class='recContainer'>	
+		
+		</div>
+		<div class='btn-group btn-group-justified' role='group'>
+			<div class='btn-group' role='group'>
+				<button type='button' class='btn btn-default addRecipe'>Add New Recipe+</button>
+			</div>
+		</div>
+	</div>
+</div>
+<style type="text/css">
+    html, body {
+	height: 100%;
+}
+.container {
+	max-width: 1000px;
+}
+.newRecipe {
+	display: none;
+	position: fixed;
+	right: 0;
+	left: 0;
+	z-index: 100;
+	background-color: rgba(0, 0, 0, 0.7);
+	height: 100%;
+}
+.newRecipeFormContainer {
+	display: none;
+	z-index: 150;
+	padding: 10px;
+	position: fixed;
+	left: 0;
+	right: 0;
+	margin: 10px auto;
+	}
+.newRecipeForm {
+		margin: 10px auto;
+		border: solid 0.1px black;
+		border-radius: 7px;
+		background-color: white;
+		max-width: 600px;
+			border-bottom: solid 0.5px #DDD;
+			padding: 15px;
+			font-family: 'Open Sans', sans-serif;
+			font-size: 20px;
+			font-weight: 400;
+		}
+		.form {
+	
+			font-size: 15px;
+			
+		}
+		#form-buttons {
+			text-align: right;
+			margin: 15px;
+		}
+
+.img-responsive, .addRecipe {
+	 margin-bottom: 10px;
+}
+#recipeView {
+	text-align: left;
+	font-size: 20px;
+	cursor: pointer;
+	margin-left: 15px;
+	margin-top: 25px;
+	margin-bottom: 25px;
+}
+.names {
+	margin-top: 10px;
+	margin-left: 10px;
+	text-align: left;
+	display: none;
+	
+}
+
+
+</style>
+<script type="text/javascript">
+    $(document).ready(function() {
+	React.render(<NewRecipeControl edit={false}/>, document.getElementById('controls'));
+	$('.addRecipe').on('click', function() {
+		$('.newRecipeFormContainer, .newRecipe').fadeIn('fast');
+	});
+	$('.closeBtn, .close').on('click', function(e) {
+		$('.newRecipeFormContainer, .newRecipe').fadeOut('fast');
+	});
+
+});
+var NewRecipeControl = React.createClass({
+	getInitialState: function() {
+		return {
+			edit: false,
+			id: '',
+			key: '',
+			name: '',
+			url: '',
+			description: '',
+			ingredients: '',
+			recipes: JSON.parse(localStorage.getItem('recipes') || '[{"name":"Lemony Smoked Trout Tartine","url":"http://www.bonappetit.com/wp-content/uploads/2016/04/lemony-smoked-trout-tartine-445x445.jpg","description":"This open-faced sandwich provides a twist on your usual lunch by using smoked trout. Adding fresh lemon juice helps balance out all the heavier flavors.","ingredients":"¼ small shallot - finely chopped, 3 tablespoons crème fraîche, 2 teaspoons fresh lemon juice, Kosher salt, freshly ground pepper, 1 cup flaked smoked trout (about 4 ounces)"},{"name":"BLT Lettuce Wraps","url":"http://www.bonappetit.com/wp-content/uploads/2016/04/BLT-lettuce-wraps-445x445.jpg","description":"Bibb lettuce leaves are sturdy and crispy enough to balance out the bacon, tomatoes, and avocado for these lunch-friendly wraps.","ingredients":"1 tablespoon chopped chives, 1 tablespoon mayonnaise, 1 tablespoon sour cream, ½ teaspoon finely grated lemon zest, 1 teaspoon fresh lemon juice, Kosher salt, freshly ground pepper"},{"name":"Crisp Waffles","url":"http://www.bonappetit.com/wp-content/uploads/2015/12/Screen-Shot-2015-12-17-at-3.28.06-PM-445x445.png","description":"This is Magnus Nilsson\'s favorite kind of waffle, crisp and delicate in an almost unreal way. Enjoy them hot off the iron with whipped cream and jam.","ingredients":"1¼ cups weak (soft) wheat flour (6½ ounces), Generous pinch of kosher salt, Generous pinch of sugar, 1¼ cups cream Melted unsalted butter (for brushing)"}]'),
+			editButton: 'Add Recipe'
+
+		}
+	},
+	componentDidMount() {
+		$('.names').off('click');
+		$('#smallView, #bigView').off('click');
+		$('.names').click(function() {
+			$(this).slideUp('600');
+			$(this).closest('div').find('.caption').slideDown('600');
+			$(this).closest('div').find('.caption').addClass('active');
+			$(this).closest('div').find('.names').addClass('active');
+			$('.caption:not(.active)').slideUp('600');
+			$('.names:not(.active)').slideDown('600');
+			$(this).closest('div').find('.caption').removeClass('active');
+			$(this).closest('div').find('.names').removeClass('active');
+		});
+		$('#smallView, #bigView').click(function() {
+			$('#smallView, #bigView').toggleClass('active');
+			if ($('#smallView').attr('class') === 'active') {
+				$('.caption').slideUp('600');
+				$('.names').slideDown('600');
+			} else {
+				$('.caption').slideDown('600');
+				$('.names').slideUp('600');
+			}
+		});
+	},
+	componentDidUpdate() {
+		if ($('#smallView').attr('class') === 'active') {
+				$('.caption:not(.active)').css('display', 'none');
+				$('.names:not(.active)').css('display', 'block');
+			}
+		$('.names').off('click');
+		$('#smallView, #bigView').off('click');
+		$('.names').click(function() {
+			$(this).slideUp('600');
+			$(this).closest('div').find('.caption').slideDown('600');
+			$(this).closest('div').find('.caption').addClass('active');
+			$(this).closest('div').find('.names').addClass('active');
+			$('.caption:not(.active)').slideUp('600');
+			$('.names:not(.active)').slideDown('600');
+			$(this).closest('div').find('.caption').removeClass('active');
+			$(this).closest('div').find('.names').removeClass('active');
+		});
+		$('#smallView, #bigView').click(function() {
+			$('#smallView, #bigView').toggleClass('active');
+			if ($('#smallView').attr('class') === 'active') {
+				$('.caption').slideUp('600');
+				$('.names').slideDown('600');
+			} else {
+				$('.caption').slideDown('600');
+				$('.names').slideUp('600');
+			}
+		});
+	},
+	update: function() {
+		var self = this
+		var listRecipes = function() {
+			return self.state.recipes.map(function(element, index) {
+				if (element.name != '') {
+					return <Recipe 
+										handleDelete={self.handleDelete}
+										handleEdit={self.handleEdit} 
+										name={element.name} 
+										url={element.url} 
+										description={element.description} 
+										ingredients={element.ingredients} 
+										btnValue={index} 
+										key={index + Math.random()}/>
+				}
+			});
+		}
+		React.render(<div className='listOfRecipes'>{listRecipes()}</div>, document.getElementById('recContainer'))
+	},
+	handleClose: function() {
+		this.setState({
+			edit: false,
+			editButton: 'Add Recipe'
+		});
+		$('.nameInput').val('');
+		$('.urlInput').val('');
+		$('.descriptionInput').val('');
+		$('.ingredientsInput').val('');
+	},
+	handleDelete: function(e) {
+		var NewList = this.state.recipes;
+		NewList.splice(e.target.value, 1);
+		this.setState({
+			recipes: NewList
+		}, this.update());
+		localStorage.setItem('recipes', JSON.stringify(NewList));
+
+	},
+	handleEdit: function(p) {
+		var recipes = this.state.recipes;
+		$('.nameInput').val(recipes[p.target.value]['name'] || '');
+		$('.urlInput').val(recipes[p.target.value]['url'] || '');
+		$('.descriptionInput').val(recipes[p.target.value]['description'] || '');
+		$('.ingredientsInput').val(recipes[p.target.value]['ingredients'] || '');
+		$('.newRecipeFormContainer, .newRecipe').fadeIn('fast');
+		this.setState({
+			edit: true,
+			key: Math.random(),
+			id: p.target.value,
+			name: recipes[p.target.value]['name'],
+			url: recipes[p.target.value]['url'],
+			description: recipes[p.target.value]['description'],
+			ingredients: recipes[p.target.value]['ingredients'],
+			editButton: 'Edit Recipe'
+		});
+
+	},
+	handleSubmit: function(e) {
+		if (e) {
+			e.preventDefault();
+		}
+		var recipesList = this.state.recipes;
+		if (this.state.edit) {
+			recipesList[this.state.id] = {
+				name: this.state.name,
+				url: this.state.url,
+				description: this.state.description,
+				ingredients: this.state.ingredients
+			}
+		} else {
+			if (this.state.name != '') {
+				recipesList.push({
+					name: this.state.name,
+					url: this.state.url,
+					description: this.state.description,
+					ingredients: this.state.ingredients
+				});
+			}
+		}
+		console.log(recipesList);
+		localStorage.setItem('recipes', JSON.stringify(recipesList));
+		this.setState({
+			recipes: recipesList
+		}, this.update());
+		this.handleClose();
+	},
+	onChange: function(e) {
+		this.setState({
+			name: $('.nameInput').val(),
+			url: $('.urlInput').val(),
+			description: $('.descriptionInput').val(),
+			ingredients: $('.ingredientsInput').val()
+		}, function() {
+			if ($('#smallView').attr('class') === 'active') {
+				$('.caption:not(.active)').css('display', 'none');
+				$('.names:not(.active)').css('display', 'block');
+			}
+		})
+	},
+	render: function() {
+		this.update();
+		return (
+			<div>
+		<div className='newRecipeFormContainer'>
+			<div className='newRecipeForm'>
+				<div id='formTitle'>Add a Recipe<span onClick={this.handleClose} id='1' className='close'>×</span></div>
+				<form>
+					<div className='form'>
+						<div className='form-group'>
+							<label>Reicipe</label>
+							<input onChange={this.onChange} className='nameInput form-control' placeholder="Recipe Name" />
+						</div>
+						<div className='form-group'>
+							<label>Image URL</label>
+							<input onChange={this.onChange} className='urlInput form-control' placeholder="http://image.jpg -- OPTIONAL" />
+						</div>
+						<div className='form-group'>
+							<label>Description</label>
+							<textArea onChange={this.onChange} className='descriptionInput form-control' placeholder="Recipe Description"></textArea>
+						</div>
+						<div className='form-group'>
+							<label>Ingredients</label>
+							<textArea onChange={this.onChange} className='ingredientsInput form-control' placeholder="Enter Ingredients, Separated, By Commas"></textArea>
+						</div>
+					</div>
+					<div id='form-buttons'>
+						<button type='button' onClick={this.handleSubmit} className='btn btn-primary closeBtn'>{this.state.editButton}</button>
+						<button onClick={this.handleClose} type='button' className='btn btn-default closeBtn'>Close</button>
+					</div>
+				</form>
+			</div>
+	</div>
+</div>
+		);
+	}
+});
+var Recipe = React.createClass({
+	getInitialState: function() {
+		return {
+			value: this.props.btnValue,
+			name: this.props.name,
+			url: this.props.url,
+			description: this.props.description,
+			ingredients: this.props.ingredients
+		}
+	},
+	render: function() {
+		var img;
+		var classN = 'col-sm-12';
+		var ingredients = function(list) {
+			return <li>{list}</li>
+		}
+		if (this.state.url) {
+			var img = <div className='col-sm-4 img-responsive'>
+						<img className='img-responsive center-block' src={this.state.url} />
+					</div>;
+			var classN = 'col-sm-8';
+
+		}
+		return (
+			<div key={this.state.listID} id={'id-'+this.state.value} className='col-sm-12 recipeItem'>
+				<div className='thumbnail'>
+					<h3 className='names'>{this.state.name}</h3>
+					<div className='caption'>
+					{img}
+					<div className={classN}>
+						<h3>{this.state.name}</h3>
+						<p>{this.state.description}
+						</p>
+						<h4>Ingredients:</h4>
+						<ul>
+							{this.state.ingredients.split(', ').map(function(element) {
+								return ingredients(element)
+							})}
+						</ul>
+					</div>
+						<div className='btn-group btn-group-justified' role='group' aria-label='hello'>
+							<div className='btn-group' role='group'>
+								<button onClick={this.props.handleEdit} value={this.state.value} type='button' className='btn btn-primary editBTN'>Edit</button>
+							</div>
+							<div className='btn-group' role='group'>
+								<button onClick={this.props.handleDelete} value={this.state.value} type='button' className='btn btn-danger btn-delete'>Delete</button>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		);
+	}
+})
+</script>
